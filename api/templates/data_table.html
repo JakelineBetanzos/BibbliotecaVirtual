@@ -1,0 +1,110 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo de DataTable con Bootstrap</title>
+    <!-- Incluir Bootstrap CSS y DataTables CSS -->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
+    <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.10/css/dataTables.bootstrap5.min.css">
+</head>
+<body>
+<div class="container mt-5">
+
+    <div id="genReportButton" class="container mt-5 text-right">
+        <button class="btn btn-primary">Gen Report</button>
+    </div>
+
+    <table id="dataTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Edad</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Incluir jQuery y DataTables JavaScript -->
+<script src="{% static 'vendor/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/datatables/jquery.datatables.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.js' %}"></script>
+
+<script>
+
+
+
+    function generarDatosFicticios(cantidad) {
+        var datos = [];
+        for (var i = 1; i <= cantidad; i++) {
+            var nombre = "Persona " + i;
+            var edad = Math.floor(Math.random() * 100); // Edad aleatoria entre 0 y 99
+            datos.push([i, nombre, edad]);
+        }
+        return datos;
+    }
+
+
+    function llenarTabla() {
+        var table = $('#dataTable').DataTable();
+        var datosFicticios = generarDatosFicticios(250); // Genera 250 registros ficticios
+
+        table.rows.add(datosFicticios).draw();
+    }
+
+    $(document).ready(function () {
+        llenarTabla();
+
+
+        var table = $('#dataTable').DataTable();
+
+
+        var data = table.rows().data().toArray();
+
+        var jsonData = [];
+
+        data.forEach((row) => {
+            const rowData = {
+                id: row[0],
+                name: row[1],
+                edad: row[2]
+            };
+            jsonData.push(rowData);
+        })
+
+        $("#genReportButton").click(function () {
+
+            $.ajax({
+                type: "POST",
+                url: "/data_table/",
+                data: JSON.stringify(jsonData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+
+                    console.log(response);
+                },
+                error: function (error) {
+                    // Manejar errores si ocurren
+                    console.error(error);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
